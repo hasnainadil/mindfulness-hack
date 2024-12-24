@@ -1,0 +1,11 @@
+# any folder named "node_modules"
+node_modules/
+
+# any folder named gpt4all
+gpt4all/
+
+# any folder named __pycache__
+__pycache__/
+
+# any folder named env
+env/

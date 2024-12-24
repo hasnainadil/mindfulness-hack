@@ -1,0 +1,9 @@
+Command to run MySQL container:
+
+docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 -d mysql:8.0
+
+docker exec -it mysql-container mysql -u root -p
+
+CREATE DATABASE test;
+
+SHOW DATABASES;
