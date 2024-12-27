@@ -1,3 +1,4 @@
+
 # API Endpoints
 
 ## Authentication Routes
@@ -12,7 +13,7 @@
     "email": "string",
     "password": "string",
     "age": "number",
-    "gender": "MALE" | "FEMALE" | "OTHER"
+    "gender": 'MALE' | 'FEMALE' | 'OTHER'
   }
   ```
 - **Response:**
