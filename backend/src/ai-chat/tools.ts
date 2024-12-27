@@ -2,10 +2,8 @@ import { RunnableConfig } from "@langchain/core/runnables";
 import { DynamicStructuredTool, tool } from "@langchain/core/tools";
 import { getJournalsFromVector } from "./model-utils";
 import { z } from "zod";
-import { ChatModel } from "./model-setup";
 import Exa from "exa-js";
 import { ExaSearchResults } from "@langchain/exa";
-import logger from "../logger/winston-log";
 
 type ToolFuncReturnType = {
     content: string,
@@ -45,8 +43,6 @@ const GetJournalTool = tool(
 const SearchWebTool = tool(
     async ({ query, nextModelInstruction }: { query: string, nextModelInstruction: string }, config: RunnableConfig): Promise<ToolFuncReturnType> => {
         const searchResults = await ExatSearch.invoke(query)
-        logger.info(`Search results:`)
-        console.log(JSON.parse(searchResults)?.results?.map((result: { title: string, text: string }) => `${result?.title}\n${result.text}`)?.join("\n\n"))
         return {
             content: JSON.parse(searchResults)?.results?.map((result: { title: string, text: string }) => `${result?.title}\n${result.text}`)?.join("\n\n") || "No results found.",
             nextModelInstruction: nextModelInstruction

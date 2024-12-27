@@ -63,7 +63,6 @@ async function likeDislikeQuestionController(req: Request, res: Response) {
     try {
         // Like a question
         const questionId = parseInt(req.params.questionId);
-        console.log(questionId);
         const newQuestion = await likeDisLikeQuestion(questionId, verifyToken(req.cookies.access_token));
         res.status(StatusCodes.OK).send({ likes: newQuestion.likes });
     } catch (err) {
@@ -78,7 +77,6 @@ async function deleteQuestionController(req: Request, res: Response) {
     try {
         // Delete a question
         const questionId = parseInt(req.params.questionId);
-        console.log(questionId);
         await deleteQuestion(questionId, verifyToken(req.cookies.access_token));
         res.status(StatusCodes.OK).send("Question deleted successfully");
     } catch (err) {

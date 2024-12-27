@@ -11,7 +11,6 @@ import {
 import { verifyToken } from '../utils/jwt-utils';
 import { getAiReply } from '../ai-chat/model-utils';
 import { getUserById } from '../services/user.service';
-import logger from '../logger/winston-log';
 import { randomInt } from 'crypto';
 
 async function createChatController(req: Request, res: Response) {
@@ -54,7 +53,6 @@ async function getChatByIdController(req: Request, res: Response) {
   try {
     const userId = verifyToken(req.cookies.access_token);
     const chatId = parseInt(req.params.chatId);
-    logger.info(`User ${userId} requested chat ${chatId}`);
     const chat = await getChatById(userId, chatId);
     res
       .status(StatusCodes.OK)
@@ -98,9 +96,7 @@ async function createMessageController(req: Request, res: Response) {
     await createMessage(chatId, content, true);
     const messages = await getMessagesForChat(chatId);
     const user = await getUserById(userId);
-    logger.info(`User ${userId} sent message ${content} to chat ${chatId}`);
     const aiMessage = await getAiReply(messages, user);
-    logger.info(`AI replied with ${aiMessage}`);
     const newMessage = await createMessage(chatId, aiMessage, false);
     res
       .status(StatusCodes.CREATED)
