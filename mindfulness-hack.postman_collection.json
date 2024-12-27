@@ -195,7 +195,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"content\": \"Hi there\",\r\n  \"isUser\" : true\r\n}",
+					"raw": "{\r\n  \"content\": \"Can you search the web for the current tallest building in the world?\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -203,7 +203,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{BASE_URL}}/dashboard/chat/message/3",
+					"raw": "{{BASE_URL}}/dashboard/chat/message/:chatId",
 					"host": [
 						"{{BASE_URL}}"
 					],
@@ -211,7 +211,13 @@
 						"dashboard",
 						"chat",
 						"message",
-						"3"
+						":chatId"
+					],
+					"variable": [
+						{
+							"key": "chatId",
+							"value": "1"
+						}
 					]
 				}
 			},

@@ -55,7 +55,7 @@ async function getMoodById(userId: number, moodId: number): Promise<Mood> {
   }
 }
 
-async function getTodaysMood(userId: number): Promise<Mood[]> {
+async function getTodaysMoods(userId: number): Promise<Mood[]> {
   try {
     const user = await getUserById(userId);
     const moods = await moodRepository.findBy({ user: user, date: Between(startOfDay(new Date()), endOfDay(new Date())) });
@@ -68,4 +68,4 @@ async function getTodaysMood(userId: number): Promise<Mood[]> {
   }
 }
 
-export { createMood, deleteMood, getMoods, getMoodById };
+export { createMood, deleteMood, getMoods, getMoodById, getTodaysMoods };

@@ -14,6 +14,7 @@ import { string, z } from "zod";
 import { RunnableConfig } from "@langchain/core/runnables";
 import { toolsPool } from "./tools";
 import { ExceptionEnum } from "../types/exceptiontypes";
+import logger from "../logger/winston-log";
 
 const chatPromptTemplate = ChatPromptTemplate.fromMessages([
     new SystemMessage("You are a helpful chat bot that provides emotional and mental support to user. Just talk normally and check how the user is feeling and act accordingly to cheer him/her up if needed. User info is:Id: {userid} , name: {username} , age : {userage} , gender : {usergender}. The start of your conversation is {firstMessageTime}"),
@@ -31,6 +32,8 @@ async function getAiReply(messages: Message[], user: User): Promise<string> {
             return new AIMessage(message.content)
         }
     })
+    logger.info(`Model input array:`)
+    console.log(model_input_array)
     const chainedChatModel = chatPromptTemplate.pipe(ChatModel)
     const model_output = await chainedChatModel.invoke({
         userid: user.id,
@@ -40,6 +43,8 @@ async function getAiReply(messages: Message[], user: User): Promise<string> {
         firstMessageTime: messages[0].timestamp.toISOString(),
         msgs: model_input_array
     })
+    logger.info(`Model output`)
+    console.log(model_output)
     if (Array.isArray(model_output.content) && model_output.tool_calls && model_output.tool_calls?.length > 0) {
         // checking if there is any tool call be done??
         return toolCallingChain(model_output, user.id);
@@ -48,7 +53,9 @@ async function getAiReply(messages: Message[], user: User): Promise<string> {
     return model_output.content.toString();
 }
 
-async function toolCallingChain(aiMessage: AIMessage, userId: number): Promise<string> {
+async function toolCallingChain(aiMessage: AIMessage, userId: number, toolCallingChainId: number = 1): Promise<string> {
+    logger.info(`Tool calling chain id: ${toolCallingChainId} with message:`)
+    console.log(aiMessage)
     let nextModelInput = "";
     if (aiMessage.content instanceof String || typeof aiMessage.content === "string") {
         return aiMessage.content as string;
@@ -58,9 +65,21 @@ async function toolCallingChain(aiMessage: AIMessage, userId: number): Promise<s
         const tool = toolsPool.get(tool_call.name);
         if (tool) {
             const { content, nextModelInstruction } = await tool.invoke(tool_call.args, { configurable: { userId: userId } });
-            nextModelInput = `tool_name: ${tool_call.name}, tool_returned: ${content},instruction from previous model for next model: ${nextModelInstruction}`;
-            const modelResponse = await ChatModel.invoke(nextModelInput);
-            return await toolCallingChain(modelResponse, userId);
+            logger.info(`Tool call content:`)
+            console.log(content)
+            logger.info(`Tool call next model instruction:`)
+            console.log(nextModelInstruction)
+            if (nextModelInstruction.trim() !== "") {
+                nextModelInput = `tool_name: ${tool_call.name}, tool_returned: ${content},instruction from previous model for next model: ${nextModelInstruction}`;
+                logger.info(`Next model input: ${nextModelInput}`)
+                const modelResponse = await ChatModel.invoke(nextModelInput);
+                logger.info(`Model response:`)
+                console.log(modelResponse)
+                return await toolCallingChain(modelResponse, userId, toolCallingChainId + 1);
+            }
+            else {
+                return content;
+            }
         }
         else {
             throw new Error(ExceptionEnum.INTERNAL_SERVER_ERROR);
@@ -86,4 +105,8 @@ async function saveJournalVector(userId: number, journal: Journal): Promise<numb
     return parseInt((await vectorStorage.addDocuments([document], { ids: [journal.id.toString()] }))[0]);
 }
 
-export { getAiReply, getJournalsFromVector, saveJournalVector };
+async function removeJournalVector(journal: Journal) {
+    await vectorStorage.delete({ ids: [journal.id.toString()] });
+}
+
+export { getAiReply, getJournalsFromVector, saveJournalVector, removeJournalVector };

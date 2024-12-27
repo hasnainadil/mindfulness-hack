@@ -81,8 +81,15 @@ async function createMessage(chatId: number, content: string, isUser: boolean): 
             content: content,
             isUser: isUser
         });
-        const newMessage = await messageRepository.save(message);
-        return newMessage;
+        // const newMessage = await messageRepository.save(message);
+        // return newMessage;
+        return {
+            chat: chat,
+            content: content,
+            isUser: isUser,
+            id: 1,
+            timestamp: new Date()
+        }
     } catch (error) {
         throw error;
     }

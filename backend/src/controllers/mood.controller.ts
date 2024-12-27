@@ -3,7 +3,8 @@ import { StatusCodes } from 'http-status-codes';
 import {
     createMood,
     deleteMood,
-    getMoods
+    getMoods,
+    getTodaysMoods
 } from '../services/mood.service';
 import { verifyToken } from '../utils/jwt-utils';
 
@@ -60,7 +61,7 @@ async function getMoodsController(req: Request, res: Response) {
 async function getMoodsOnedayController(req: Request, res: Response) {
     try {
         const userId = verifyToken(req.cookies.access_token);
-        const moods = await getMoods(userId);
+        const moods = await getTodaysMoods(userId);
         res
             .status(StatusCodes.OK)
             .send(moods.map(mood => ({
@@ -74,6 +75,7 @@ async function getMoodsOnedayController(req: Request, res: Response) {
         }
     }
 }
+
 
 export {
     createMoodController,

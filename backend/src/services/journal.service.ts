@@ -1,3 +1,4 @@
+import { removeJournalVector, saveJournalVector } from "../ai-chat/model-utils";
 import { AppDataSource } from "../database";
 import { Journal } from "../entities/journals";
 import { User } from "../entities/user";
@@ -17,7 +18,9 @@ async function createJournal(userId: number, title: string, content: string): Pr
       title: title,
       content: content
     });
-    return await journalRepository.save(journal);
+    const newJournal = await journalRepository.save(journal);
+    saveJournalVector(userId, newJournal);
+    return newJournal;
   } catch (error) {
     throw error;
   }
@@ -85,9 +88,10 @@ async function deleteJournal(userId: number, journalId: number): Promise<void> {
     if (!journal) {
       throw new Error("Journal not found");
     }
-    if(journal.user.id !== user.id) {
-        throw new Error("Unauthorized access");
+    if (journal.user.id !== user.id) {
+      throw new Error("Unauthorized access");
     }
+    await removeJournalVector(journal);
     await journalRepository.remove(journal);
   } catch (error) {
     throw error;

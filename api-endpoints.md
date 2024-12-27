@@ -200,8 +200,7 @@
 - **Request Body:**
   ```json
   {
-    "content": "string",
-    "isUser": "boolean"
+    "content": "string"
   }
   ```
 - **Response:**
